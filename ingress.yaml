@@ -3,7 +3,7 @@ kind: Ingress
 metadata:
   name: example-ingress
 spec:
-　　　　ingressClassName: nginx #nginxというingresscontrollerに管理されるkubecl get ingressclassesで存在するクラスを確認
+　　　　ingressClassName: nginx #nginxというingresscontrollerに管理されるkubeclgetingressclassesで存在するクラスを確認
   rules:
     - host: example.com #このドメインでアクセス
       http:
