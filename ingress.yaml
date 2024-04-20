@@ -7,10 +7,17 @@ spec:
     - host: example.com
       http:
         paths:
-          - path: /
+          - path: /app1
             pathType: Prefix
             backend:
               service:
-                name: nginx-service
+                name: service1
+                port:
+                  number: 80
+          - path: /app2
+            pathType: Prefix
+            backend:
+              service:
+                name: service2
                 port:
                   number: 80
