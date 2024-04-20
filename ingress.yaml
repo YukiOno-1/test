@@ -3,19 +3,20 @@ kind: Ingress
 metadata:
   name: example-ingress
 spec:
+　　　　ingressClassName: nginx #nginxというingresscontrollerに管理されるkubecl get ingressclassesで存在するクラスを確認
   rules:
-    - host: example.com
+    - host: example.com #このドメインでアクセス
       http:
         paths:
-          - path: /app1
-            pathType: Prefix
+          - path: /app1　#example.com/app1が来たらservice1にトラフィック
+            pathType: Prefix　#/app1/abcでも通す
             backend:
               service:
                 name: service1
                 port:
                   number: 80
           - path: /app2
-            pathType: Prefix
+            pathType: Exact #/app1/abcは通らない
             backend:
               service:
                 name: service2
