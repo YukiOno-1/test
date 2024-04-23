@@ -1,0 +1,3 @@
+# podがデプロイされない時
+# schedulerが正常に起動していない
+kubectl get pods -n kube-system
