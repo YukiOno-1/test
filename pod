@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nginx
+spec:
+  containers:
+  - name: nginx
+    image: nginx
+  nodeName: $node-name #デプロイ先ノードを手動で指定（schedulerが起動していないくてもOK）
+  
