@@ -1,1 +1,8 @@
+# イメージ取得して実行
+kubectl run $pod-name --image=$image-name 
 
+# イメージの取得、podの実行は無し
+kubectl run $pod-name --image=$image-name --dry-run=client -oyaml > pod.yaml
+
+#　実行ノードの確認
+kubectl get po -owide
