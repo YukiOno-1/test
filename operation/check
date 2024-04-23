@@ -1,0 +1,2 @@
+# リソースの確認、バージョンやカスタムリソースなど
+kubectl api-resources
