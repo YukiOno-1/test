@@ -3,11 +3,11 @@ kind: Service
 metadata:
   name: nginx-service
 spec:
-  type: NodePort
+  type: NodePort #クラスタ内のどのノードのIPでもいい
   selector:
     app: nginx
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 80
+      port: 80 #serviceがリッスンしてるパート
+      targetPort: 80 #ターゲットpodがリッスンしてるパート。今回はnginxpodが80番でリッスンしてる
       nodePort:30000
