@@ -1,9 +1,21 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: nginx
+  name: pv-recycler
+  namespace: default
 spec:
+  restartPolicy: Never
+  volumes: #
+  - name: vol
+    hostPath:
+      path: /any/path/it/will/be/replaced
   containers:
+  - name: pv-recycler
+    image: "registry.k8s.io/busybox"
+    command: ["/bin/sh", "-c", "test -e /scrub && rm -rf /scrub/..?* /scrub/.[!.]* /scrub/*  && test -z \"$(ls -A /scrub)\" || exit 1"]
+    volumeMounts:
+    - name: vol
+      mountPath: /scrub
   - name: nginx
     image: nginx
   nodeName: $node-name #デプロイ先ノードを手動で指定（schedulerが起動していないくてもOK）
