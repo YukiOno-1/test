@@ -6,3 +6,6 @@ kubectl run $pod-name --image=$image-name --dry-run=client -oyaml > pod.yaml
 
 #　実行ノードの確認
 kubectl get po -owide
+
+#スケール
+kubectl scale rs $name --replicas=5
