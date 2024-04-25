@@ -4,7 +4,7 @@ metadata:
   name: pv-recycler
   namespace: default
 spec:
-  restartPolicy: Never
+  restartPolicy: Never #podが落ちた時リスタートされない
   volumes: #
   - name: vol
     hostPath:
