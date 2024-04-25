@@ -1,0 +1,44 @@
+controlplane ~ ✖ k get po -n marketing 
+NAME       READY   STATUS    RESTARTS   AGE
+redis-db   1/1     Running   0          3m36s
+blue       1/1     Running   0          3m36s
+
+controlplane ~ ➜  k get svc -n marketing 
+NAME           TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+blue-service   NodePort   10.43.161.235   <none>        8080:30082/TCP   3m40s
+db-service     NodePort   10.43.37.47     <none>        6379:30954/TCP   3m40s
+
+controlplane ~ ➜  k exec -it -n marketing pods/blue -- ping db-servce
+ping: bad address 'db-servce'
+command terminated with exit code 1
+
+controlplane ~ ✖ 
+
+同じネームスペース内はサービスの名前で解決できる
+controlplane ~ ✖ k exec -it -n marketing pods/blue -- ping db-service
+PING db-service (10.43.37.47): 56 data bytes
+^C
+--- db-service ping statistics ---
+21 packets transmitted, 0 packets received, 100% packet loss
+command terminated with exit code 1
+--------------------------------
+
+controlplane ~ ➜  k get po -n marketing 
+NAME       READY   STATUS    RESTARTS   AGE
+redis-db   1/1     Running   0          11m
+blue       1/1     Running   0          11m
+
+controlplane ~ ➜  k get svc -n dev
+NAME         TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+db-service   ClusterIP   10.43.123.244   <none>        6379/TCP   11m
+
+違うネームスペースの場合はちょっとめんどくさい
+podに直接アクセスしたいときは$pod-ip.$namespace-name.pod.cluster.local
+controlplane ~ ✖ k exec -n marketing -it pods/blue  -- ping db-service.dev.svc.cluster.local
+PING db-service.dev.svc.cluster.local (10.43.123.244): 56 data bytes
+^C
+--- db-service.dev.svc.cluster.local ping statistics ---
+8 packets transmitted, 0 packets received, 100% packet loss
+command terminated with exit code 1
+
+controlplane ~ ✖ 
