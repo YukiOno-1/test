@@ -18,3 +18,6 @@ k expose pod redis --port=6379 --name=redis-service
 
 #deploy作成
 k create deployment webapp  --image=k^Cekloud/webapp-color --replicas=3
+
+#port指定でpod作成 podの作成はrunの方がいい
+k run custom-nginx --image=nginx --port=8080
