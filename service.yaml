@@ -11,3 +11,85 @@ spec:
       port: 80 #serviceがリッスンしてるパート
       targetPort: 80 #ターゲットpodがリッスンしてるパート。今回はnginxpodが80番でリッスンしてる
       nodePort:30000
+
+
+
+---------------
+svcが待っているのは443
+controlplane ~ ➜  k get svc kubernetes 
+NAME         TYPE        CLUSTER-IP   EXTERNAL-IP   PORT(S)   AGE
+kubernetes   ClusterIP   10.43.0.1    <none>        443/TCP   15m
+ターゲットポートは6443
+controlplane ~ ➜  k get svc kubernetes -oyaml |grep target
+    targetPort: 6443
+今回はkubernetesのマスターノードに対するやつだから特例でpodがない
+エンドポイントはサービス配下のポッドのIPだから複数ある場合もある
+controlplane ~ ➜  k get endpoints
+NAME         ENDPOINTS           AGE
+kubernetes   192.26.158.3:6443   16m
+
+controlplane ~ ➜  k get po
+No resources found in default namespace.
+
+
+---------
+
+サービス作って　ポッドが待っているのは8080 サービスが待っているのは8080 外部からアクセスするためにノードポート　30080で待っている
+controlplane ~ ➜  k get svc webapp-service -oyaml
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: "2024-04-25T14:17:50Z"
+  name: webapp-service
+  namespace: default
+  resourceVersion: "1214"
+  uid: 12daf31e-6451-4b67-9c22-dbbd734d97e7
+spec:
+  clusterIP: 10.43.61.158
+  clusterIPs:
+  - 10.43.61.158
+  externalTrafficPolicy: Cluster
+  internalTrafficPolicy: Cluster
+  ipFamilies:
+  - IPv4
+  ipFamilyPolicy: SingleStack
+  ports:
+  - nodePort: 30080
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    name: simple-webapp
+  sessionAffinity: None
+  type: NodePort
+status:
+  loadBalancer: {}
+
+
+ノードのIP見て
+controlplane ~ ➜  k get nodes -owide
+NAME           STATUS   ROLES                  AGE   VERSION        INTERNAL-IP    EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
+controlplane   Ready    control-plane,master   28m   v1.29.0+k3s1   192.26.158.3   <none>        Alpine Linux v3.16   5.4.0-1106-gcp   containerd://1.7.11-k3s2
+
+
+
+controlplane ~ ➜  k get svc
+NAME             TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+kubernetes       ClusterIP   10.43.0.1      <none>        443/TCP          29m
+webapp-service   NodePort    10.43.61.158   <none>        8080:30080/TCP   2m3s
+
+ノードポートでピング
+controlplane ~ ➜  ping 192.26.158.3:30080
+PING 192.26.158.3:30080 (192.26.158.3): 56 data bytes
+64 bytes from 192.26.158.3: seq=0 ttl=64 time=0.047 ms
+64 bytes from 192.26.158.3: seq=1 ttl=64 time=0.053 ms
+64 bytes from 192.26.158.3: seq=2 ttl=64 time=0.048 ms
+64 bytes from 192.26.158.3: seq=3 ttl=64 time=0.052 ms
+64 bytes from 192.26.158.3: seq=4 ttl=64 time=0.048 ms
+64 bytes from 192.26.158.3: seq=5 ttl=64 time=0.078 ms
+^C
+--- 192.26.158.3:30080 ping statistics ---
+6 packets transmitted, 6 packets received, 0% packet loss
+round-trip min/avg/max = 0.047/0.054/0.078 ms
+
+------------
