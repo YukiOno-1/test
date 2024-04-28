@@ -21,3 +21,6 @@ k create deployment webapp  --image=k^Cekloud/webapp-color --replicas=3
 
 #port指定でpod作成 podの作成はrunの方がいい
 k run custom-nginx --image=nginx --port=8080
+
+# ターゲットポートの指定もできる　ポート指定は必須
+k expose po httpd --target-port=80 --port=80
