@@ -1,2 +1,8 @@
 # リソースの確認、バージョンやカスタムリソースなど
 kubectl api-resources
+
+# ラベルでカウント
+k get all -l env=prod --no-headers | wc -l
+kubectl get allは、クラスタ内のすべてのリソースを取得します。allはPod、Service、Deploymentなどのすべてのリソースを指します。
+--no-headersは、結果にヘッダー行を表示しないようにします。通常、kubectl getコマンドは結果の最初の行にヘッダーを表示しますが、このオプションを使用するとそれを抑制します。
+
