@@ -16,3 +16,7 @@ spec:
     value: mortein
     effect: NoSchedule
     operator: Equal
+
+# cpからtaintを削除する。　ノードのヤムルを見ればtaintが確認できる
+controlplane ~ ➜  k taint node controlplane node-role.kubernetes.io/control-plane=:NoSchedule-
+node/controlplane untainted
