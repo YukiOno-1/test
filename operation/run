@@ -24,3 +24,15 @@ k run custom-nginx --image=nginx --port=8080
 
 # ターゲットポートの指定もできる　ポート指定は必須
 k expose po httpd --target-port=80 --port=80
+
+#配下のファイル全て　作成
+k create -f kubernetes-metrics-server/
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
+serviceaccount/metrics-server created
+deployment.apps/metrics-server created
+service/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
