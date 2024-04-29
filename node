@@ -1,5 +1,5 @@
-#taint node01にこのキーバリューを持ったリソースをスケジュールしない
-controlplane ~ ➜  k taint node node01 spray=mortein:NoSchedule
+#taint node01にこのキーバリューを持ったリソースをスケジュールしない　表記方法　key=value:effect
+controlplane ~ ➜  k taint node node01 spray=mortein:NoSchedule　＃スケジューリングを禁止
 node/node01 tainted
 
 # このポッドはデプロイできる
@@ -11,12 +11,49 @@ spec:
   containers:
   - image: nginx
     name: bee
-  tolerations:
+  tolerations: #許容という意味
   - key: spray
     value: mortein
     effect: NoSchedule
-    operator: Equal
+    operator: Equal　#上のテイントと一致するやつを無視する
 
 # cpからtaintを削除する。　ノードのヤムルを見ればtaintが確認できる
 controlplane ~ ➜  k taint node controlplane node-role.kubernetes.io/control-plane=:NoSchedule-
 node/controlplane untainted
+
+# grep -i をしないと大文字の区別されない　　case-insensitiveと英語ではいうらしい
+controlplane ~ ✖ kubectl  describe nodes controlplane |grep taints -i
+Taints:             <none>
+
+
+# アフィニティを使用して特定のノードにデプロイする。まずはノードにラベルをつける
+k label nodes node01 color=blue
+
+#アフィニティでキーバリューを指定。　k８sドキュメンとからそのまま持って来れる
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: blue
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      run: nginx
+  template:
+    metadata:
+      labels:
+        run: nginx
+    spec:
+      containers:
+      - image: nginx
+        imagePullPolicy: Always
+        name: nginx
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:　#ノードにポッドをスケジュールする指定。他にもあるけどとりまこれだけ覚えておけば良し
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: color
+                operator: In
+                values: #ここがvaluesなのでリストで記載しないといけない
+                - blue
