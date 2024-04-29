@@ -16,3 +16,10 @@ controlplane ~ ➜  k top node
 NAME           CPU(cores)   CPU%   MEMORY(bytes)   MEMORY%   
 controlplane   339m         0%     1009Mi          0%        
 node01         28m          0%     347Mi           0%  
+
+# podの使用量も見れる
+controlplane ~ ➜  k top pod 
+NAME       CPU(cores)   MEMORY(bytes)   
+elephant   20m          32Mi            
+lion       1m           18Mi            
+rabbit     143m         252Mi   
