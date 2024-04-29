@@ -1,0 +1,21 @@
+各ノードで管理されるポッド
+スタティックポッドがどのノードで動いているか確認してそのノードにアクセス
+ファイルの場所は下に記載
+
+Static Pod（スタティックポッド）は、Kubernetesクラスター内で実行される特別なタイプのポッドです。通常のポッドと異なり、Static Podは特定のノード上で直接管理され、kubeletによってノードのkubelet構成ファイルに記述されています。つまり、Static Podの定義は、ノード自体の構成に含まれており、クラスター全体で管理されるのではなく、各ノードに固有のものです。
+Static Podは、主にkubelet自体がクラスターに参加する前に必要なシステムポッドやサービスを起動するために使用されます。また、kubeletがダウンしている場合でも、ノード上のポッドが停止しないようにするためにも使用されます。
+Static Podは通常、/etc/kubernetes/manifestsディレクトリ（kubeletの構成によって異なる場合があります）に配置されたマニフェストファイルによって定義されます。kubeletはこのディレクトリを定期的に監視し、新しいポッドのマニフェストを検出した場合は自動的に起動します。
+Static Podの特性上、kubectlコマンドを使用して直接操作することはできません。代わりに、kubeletの構成や対応するマニフェストファイルを直接変更する必要があります。
+以下で管理 コントロールプレーンの場合
+/etc/kubernetes/manifests/
+
+ワーカーノードの場合
+/etc/kubernetes/manifests/　は空
+/var/lib/kubelet/config.yamlにパスが書いてある
+grep static -i でパスを確認する
+
+
+#static pod としてデプロイする。　manifestフォルダ下にあれば良い
+#-oyaml の前にコマンドオプションを入れるとエラーになった　多分-oyamlがsleepの変数として捉えられたかも
+#一個ずつ出力を確認しながら最後にリダイレクトを追加するとうまく作れる
+k run static-busybox --image=busybox --dry-run=client -oyaml --command -- sleep 1000  > /etc/kubernetes/manifests/busybox.yaml
