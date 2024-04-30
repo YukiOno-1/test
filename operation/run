@@ -36,3 +36,7 @@ deployment.apps/metrics-server created
 service/metrics-server created
 clusterrole.rbac.authorization.k8s.io/system:metrics-server created
 clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+
+
+#イメージの修正
+k editでよき
