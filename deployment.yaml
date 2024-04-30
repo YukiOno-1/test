@@ -3,6 +3,11 @@ kind: Deployment
 metadata:
   name: nginx-deployment
 spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%　 #アップデート中に最大に増やしていいいポッドの数
+      maxUnavailable: 25%　#アップデート中に最大で２５％のインスタンスが使用できなくなる
+    type: RollingUpdate
   replicas: 3
   selector:
     matchLabels:
