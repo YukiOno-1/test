@@ -9,4 +9,5 @@ EXPOSE 8080
 WORKDIR /opt
 
 ENTRYPOINT ["python", "app.py"]  #実行時に打つコマンド
+CMD ["--color", "red"] #entrypointの引数のこと
 ~
