@@ -16,7 +16,7 @@ spec:
                 port:
                   number: 80
           - path: /app2
-            pathType: Exact #/app1/abcは通らない
+            pathType: Exact #/app2/abcは通らない
             backend:
               service:
                 name: service2
