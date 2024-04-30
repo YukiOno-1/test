@@ -13,6 +13,10 @@ spec:
   - name: pv-recycler
     image: "registry.k8s.io/busybox"
     command: ["/bin/sh", "-c", "test -e /scrub && rm -rf /scrub/..?* /scrub/.[!.]* /scrub/*  && test -z \"$(ls -A /scrub)\" || exit 1"]
+#シェルをコマンドを指定するオプション込みで起動するのが　/bin/sh, -c
+    command:
+    - sleep　#シェルを起動せずとも実行できるコマンドは、binbashいらない
+    - "4800"
     volumeMounts:
     - name: vol
       mountPath: /scrub
@@ -20,3 +24,13 @@ spec:
     image: nginx
   nodeName: $node-name #デプロイ先ノードを手動で指定（schedulerが起動していないくてもOK）
   
+#Yamlの書き方
+[]はリストなので以下は同じ意味になる
+command: ["/bin/sh", "-c", "test -e /scrub && rm -rf /scrub/..?* /scrub/.[!.]* /scrub/*  && test -z \"$(ls -A /scrub)\" || exit 1"]
+
+command:
+  - /bin/sh
+  - -c
+  - test -e /scrub && rm -rf /scrub/..?* /scrub/.[!.]* /scrub/*  && test -z \"$(ls -A /scrub)\" || exit 1
+
+
