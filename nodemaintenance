@@ -1,0 +1,92 @@
+# アップデート後に再度ポッドがスケジュールできる状態に復元する
+#　スケジュール可能な状態にする
+k uncordn node01
+
+#メンテナンスモードにする
+k cordon node01 
+node/node01 cordoned
+
+#デーモンセット以外のポッドを他のノードに移動する　ドレインを実行すると自動的にcrodonも実行される
+controlplane ~ ✖ kubectl drain node01 --ignore-daemonsets
+node/node01 cordoned
+
+#クラスタのバージョンの確認はこれでできる
+controlplane ~ ✖ k get nodes 
+NAME           STATUS   ROLES           AGE   VERSION
+controlplane   Ready    control-plane   32m   v1.28.0
+node01         Ready    <none>          31m   v1.28.0
+
+#アプリの数
+controlplane ~ ➜  k get deployments.apps --no-headers 
+blue   5/5   5     5     8m4s
+
+controlplane ~ ➜  k get deployments.apps --no-headers |wc -l
+1
+
+#コンポーネントのアップグレード対応バージョンなどの確認
+controlplane ~ ➜  kubeadm upgrade plan
+[upgrade/config] Making sure the configuration is correct:
+[upgrade/config] Reading configuration from the cluster...
+[upgrade/config] FYI: You can look at this config file with 'kubectl -n kube-system get cm kubeadm-config -o yaml'
+[preflight] Running pre-flight checks.
+[upgrade] Running cluster health checks
+[upgrade] Fetching available versions to upgrade to
+[upgrade/versions] Cluster version: v1.28.0
+[upgrade/versions] kubeadm version: v1.28.0
+I0430 07:52:44.440683   15733 version.go:256] remote version is much newer: v1.30.0; falling back to: stable-1.28
+[upgrade/versions] Target version: v1.28.9
+[upgrade/versions] Latest version in the v1.28 series: v1.28.9
+
+Components that must be upgraded manually after you have upgraded the control plane with 'kubeadm upgrade apply':
+COMPONENT   CURRENT       TARGET
+kubelet     2 x v1.28.0   v1.28.9
+
+Upgrade to the latest version in the v1.28 series:
+
+COMPONENT                 CURRENT   TARGET
+kube-apiserver            v1.28.0   v1.28.9
+kube-controller-manager   v1.28.0   v1.28.9
+kube-scheduler            v1.28.0   v1.28.9
+kube-proxy                v1.28.0   v1.28.9
+CoreDNS                   v1.10.1   v1.10.1
+etcd                      3.5.9-0   3.5.9-0
+
+You can now apply the upgrade by executing the following command:
+
+        kubeadm upgrade apply v1.28.9
+
+Note: Before you can perform this upgrade, you have to update kubeadm to v1.28.9.
+
+_____________________________________________________________________
+
+
+The table below shows the current state of component configs as understood by this version of kubeadm.
+Configs that have a "yes" mark in the "MANUAL UPGRADE REQUIRED" column require manual config upgrade or
+resetting to kubeadm defaults before a successful upgrade can be performed. The version to manually
+upgrade to is denoted in the "PREFERRED VERSION" column.
+
+API GROUP                 CURRENT VERSION   PREFERRED VERSION   MANUAL UPGRADE REQUIRED
+kubeproxy.config.k8s.io   v1alpha1          v1alpha1            no
+kubelet.config.k8s.io     v1beta1           v1beta1             no
+_____________________________________________________________________
+
+
+
+
+#クラスタノードのアップデート
+k drain $node-name --ignore-daemonsets
+sudo apt update
+sudo apt-cache madison kubeadm #利用可能なバージョンを確認できる
+sudo apt-mark unhold kubeadm && \
+sudo apt-get update && sudo apt-get install -y kubeadm='1.29.x-*' && \　#xを任意のバージョンに指定する
+sudo apt-mark hold kubeadm
+sudo kubeadm upgrade apply v1.29.0 #時間かかる
+sudo kubeadm upgrade node #一つのcpをアップデートで来たら他のcpはこれでよし wnもこれでよし
+sudo apt-mark unhold kubelet kubectl && \
+sudo apt-get update && sudo apt-get install -y kubelet='1.29.0-*' kubectl='1.29.0-*' && \
+sudo apt-mark hold kubelet kubectl
+sudo systemctl daemon-reload # kubeletの再起動
+sudo systemctl restart kubelet# kubeletの再起動
+k uncordon $node-name
+
+
