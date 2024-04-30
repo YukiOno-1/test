@@ -38,3 +38,14 @@ command:
   - test -e /scrub && rm -rf /scrub/..?* /scrub/.[!.]* /scrub/*  && test -z \"$(ls -A /scrub)\" || exit 1
 
 
+
+#init container
+initContainer（イニシャルコンテナ）は、Kubernetes Pod内で最初に起動される特殊なコンテナです。通常のコンテナとは異なり、initContainerはPod内の他のすべてのコンテナが開始される前に実行されます。主な目的は、アプリケーションコンテナが実行される前に必要な前提条件を満たすための処理を行うことです。
+controlplane ~ ➜  k get po 
+NAME     READY   STATUS     RESTARTS   AGE
+green    2/2     Running    0          3m58s
+red      1/1     Running    0          3m58s
+blue     1/1     Running    0          3m58s
+purple   0/1     Init:0/2   0          10s
+イニットコンテナが２つ実行されているのがわかる
+
