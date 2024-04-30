@@ -1,0 +1,36 @@
+controlplane ~ ➜  k create configmap webapp-config-map --from-literal=APP_COLOR=darkblue --from-literal=APP_OTHER=disregard
+configmap/webapp-config-map created
+
+controlplane ~ ➜  k get configmaps webapp-config-map -oyaml
+apiVersion: v1
+data:
+  APP_COLOR: darkblue
+  APP_OTHER: disregard
+kind: ConfigMap
+metadata:
+  creationTimestamp: "2024-04-30T06:57:23Z"
+  name: webapp-config-map
+  namespace: default
+  resourceVersion: "1095"
+  uid: fead902c-b5d0-4ee9-ab88-4425832a3186
+
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    name: webapp-color
+  name: webapp-color
+  namespace: default
+  resourceVersion: "815"
+spec:
+  containers:
+  - env:
+    - name: APP_COLOR #環境変数の名前
+      valueFrom:
+        configMapKeyRef:
+          name: webapp-config-map　　#使用するコンフィグマップの名前
+          key: APP_COLOR　#コンフィグマップから持ってくるバリューに対応しているキーの名前
+    image: kodekloud/webapp-color
+    imagePullPolicy: Always
+    name: webapp-color
+  ...snip...
