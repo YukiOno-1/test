@@ -1,3 +1,33 @@
 # podがデプロイされない時
 # schedulerが正常に起動していない
 kubectl get pods -n kube-system
+
+#エディットした時に以下のエラーがでたとき　下の方にプラスとマイナスがあるのがわかる　そこが編集した箇所　
+#これが出たらリソースを削除して、再作成がいい
+# Please edit the object below. Lines beginning with a '#' will be ignored,
+# and an empty file will abort the edit. If an error occurs while saving this file will be
+# reopened with the relevant failures.
+#
+# pods "ubuntu-sleeper-3" was not valid:
+# * spec: Forbidden: pod updates may not change fields other than `spec.containers[*].image`,`spec.initContainers[*].image`,`spec.activeDeadlineSeconds`,`spec.tolerations` (only additions to existing tolerations),`spec.terminationGracePeriodSeconds` (allow it to be set to 1 if it was previously negative)
+#   core.PodSpec{
+#       Volumes:        {{Name: "kube-api-access-b6xxv", VolumeSource: {Projected: &{Sources: {{ServiceAccountToken: &{ExpirationSeconds: 3607, Path: "token"}}, {ConfigMap: &{LocalObjectReference: {Name: "kube-root-ca.crt"}, Items: {{Key: "ca.crt", Path: "ca.crt"}}}}, {DownwardAPI: &{Items: {{Path: "namespace", FieldRef: &{APIVersion: "v1", FieldPath: "metadata.namespace"}}}}}}, DefaultMode: &420}}}},
+#       InitContainers: nil,
+#       Containers: []core.Container{
+#               {
+#                       Name:  "ubuntu",
+#                       Image: "ubuntu",
+#                       Command: []string{
+#                               "sleep",
+# -                             "1200",
+# +                             "2000",
+#                       },
+#                       Args:       nil,
+#                       WorkingDir: "",
+#                       ... // 19 identical fields
+#               },
+#       },
+#       EphemeralContainers: nil,
+#       RestartPolicy:       "Always",
+#       ... // 28 identical fields
+#   }
