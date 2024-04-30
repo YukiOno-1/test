@@ -3,6 +3,11 @@ kind: Ingress
 metadata:
   name: example-ingress
 spec:
+  defaultBackend:　#下記のパスに一致しない場合の送り先。リダイレクトなどで使う
+    service:
+      name: test
+      port:
+        number: 80
 　　　　ingressClassName: nginx #nginxというingresscontrollerに管理されるkubeclgetingressclassesで存在するクラスを確認
   rules:
     - host: example.com #このドメインでアクセス
