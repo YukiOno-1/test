@@ -17,6 +17,10 @@ spec:
     command:
     - sleep　#シェルを起動せずとも実行できるコマンドは、binbashいらない
     - "4800"
+    args: ["--color", "green"]　#podが起動した時に自動で引き渡される変数
+    env:
+    - name: APP_COLOR
+      value: pink
     volumeMounts:
     - name: vol
       mountPath: /scrub
