@@ -26,6 +26,12 @@ spec:
       mountPath: /scrub
   - name: nginx
     image: nginx
+  initContainers: #initコンテナをここで記述することができる
+  - image: busybox
+    name: red-initcontainer
+    command: 
+      - "sleep"
+      - "20"
   nodeName: $node-name #デプロイ先ノードを手動で指定（schedulerが起動していないくてもOK）
   
 #Yamlの書き方
