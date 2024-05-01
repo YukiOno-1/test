@@ -17,7 +17,7 @@ spec:
     command:
     - sleep　#シェルを起動せずとも実行できるコマンドは、binbashいらない
     - "4800"
-    args: ["--color", "green"]　#podが起動した時に自動で引き渡される変数
+    args: ["--color", "green"]　#podが起動した時に自動で引き渡される変数 argsで検索すればcommunity forlumにある
     env:
     - name: APP_COLOR
       value: pink
