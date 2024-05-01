@@ -23,3 +23,15 @@ spec:
           image: nginx:latest
           ports:
             - containerPort: 80　 # コンテナが開けるポート
+        - name: regi-test
+        - image: myprivateregistry.com:5000/nginx:alpine #レジストリを指定
+      imagePullSecret:
+      - name: secret-name
+
+
+
+# image pull secret で検索すれば引っかかる
+root@controlplane ~ ➜  k create secret docker-registry private-reg-cred --docker-username=dock_user --docker-password=dock_password --docker-server=myprivateregistry.com:5000 --docker-email=dock_user@myprivateregistry.com
+secret/private-reg-cred created
+
+
