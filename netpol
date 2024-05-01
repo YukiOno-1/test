@@ -1,0 +1,69 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  annotations:
+    kubectl.kubernetes.io/last-applied-configuration: |
+      {"apiVersion":"networking.k8s.io/v1","kind":"NetworkPolicy","metadata":{"annotations":{},"name":"payroll-policy","namespace":"default"},"spec":{"ingress":[{"from":[{"podSelector":{"matchLabels":{"name":"internal"}}}],"ports":[{"port":8080,"protocol":"TCP"}]}],"podSelector":{"matchLabels":{"name":"payroll"}},"policyTypes":["Ingress"]}}
+  creationTimestamp: "2024-05-01T07:41:28Z"
+  generation: 1
+  name: payroll-policy
+  namespace: default
+  resourceVersion: "7016"
+  uid: ec99b85f-9bfd-420f-984a-3e526268a4f8
+spec:
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels: #fromなので送信するpodの話
+          name: internal
+    ports:
+    - port: 8080
+      protocol: TCP
+  podSelector:　#適用されるポッド
+    matchLabels:
+      name: payroll
+  policyTypes:
+  - Ingress
+
+
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: internal-policy
+  namespace: default
+spec:
+  podSelector:
+    matchLabels:　#ここをからにすればデフォルトns全てのpodに適用できる
+      name: internal
+  policyTypes:
+  - Egress
+  - Ingress
+  ingress:　#からなので全てのポッドがアクセスできる
+    - {}
+  egress:
+  - to:
+    - podSelector:
+        matchLabels:
+          name: mysql
+    ports:
+    - protocol: TCP
+      port: 3306
+
+  - to:
+    - podSelector:
+        matchLabels:
+          name: payroll
+    ports:
+    - protocol: TCP
+      port: 8080
+
+  - ports:　#上のポッドに関係なく53の通信はどこにでも飛ばせるということ
+    - port: 53
+      protocol: UDP
+    - port: 53
+      protocol: TCP
+
+
+全角が入ってた
+controlplane ~ ➜  k apply -f netp.yaml 
+Error from server (BadRequest): error when creating "netp.yaml": NetworkPolicy in version "v1" cannot be handled as a NetworkPolicy: strict decoding error: unknown field "\u3000egress"
