@@ -1,0 +1,18 @@
+# tlsの証明書ファイルの管理
+controlplane ~ ➜  cat /etc/kubernetes/manifests/kube-apiserver.yaml |grep -E 'key|crt' -i
+    - --client-ca-file=/etc/kubernetes/pki/ca.crt
+    - --etcd-cafile=/etc/kubernetes/pki/etcd/ca.crt　#etcdから提示される証明書が確かなものかを確認するために必要なもの
+    - --etcd-certfile=/etc/kubernetes/pki/apiserver-etcd-client.crt　#etcdにアクセスするときのクライアント証明書
+    - --kubelet-client-certificate=/etc/kubernetes/pki/apiserver-kubelet-client.crt
+    - --proxy-client-cert-file=/etc/kubernetes/pki/front-proxy-client.crt
+    - --requestheader-client-ca-file=/etc/kubernetes/pki/front-proxy-ca.crt
+    - --tls-cert-file=/etc/kubernetes/pki/apiserver.crt　#tls通信の証明書
+    - --etcd-keyfile=/etc/kubernetes/pki/apiserver-etcd-client.key　#etcdからきたデータを復号するのに使う
+    - --kubelet-client-key=/etc/kubernetes/pki/apiserver-kubelet-client.key
+    - --proxy-client-key-file=/etc/kubernetes/pki/front-proxy-client.key
+    - --service-account-key-file=/etc/kubernetes/pki/sa.pub
+    - --service-account-signing-key-file=/etc/kubernetes/pki/sa.key
+    - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
+
+
+  
