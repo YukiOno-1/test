@@ -85,3 +85,22 @@ spec:
             - matchExpressions:
               - key: node-role.kubernetes.io/control-plane
                 operator: Exists
+
+
+#インターフェースの確認
+controlplane ~ ➜  k get nodes -owide
+NAME           STATUS   ROLES           AGE     VERSION   INTERNAL-IP     EXTERNAL-IP   OS-IMAGE             KERNEL-VERSION   CONTAINER-RUNTIME
+controlplane   Ready    control-plane   9m18s   v1.29.0   192.16.127.9    <none>        Ubuntu 22.04.4 LTS   5.4.0-1106-gcp   containerd://1.6.26
+node01         Ready    <none>          8m35s   v1.29.0   192.16.127.12   <none>        Ubuntu 22.04.3 LTS   5.4.0-1106-gcp   containerd://1.6.26
+controlplane ~ ➜  ip a |grep 192.16.127.9
+    inet 192.16.127.9/24 brd 192.16.127.255 scope global eth0
+macアドレスの確認
+controlplane ~ ✖ ip link show eth0
+6829: eth0@if6830: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1450 qdisc noqueue state UP mode DEFAULT group default 
+    link/ether 02:42:c0:10:7f:09 brd ff:ff:ff:ff:ff:ff link-netnsid 0
+
+
+
+
+
+
