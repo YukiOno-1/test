@@ -3,7 +3,6 @@ kind: Deployment
 metadata:
   name: nginx-deployment
 spec:
-  serviceAccountName: test-sa
   strategy:
     rollingUpdate:
       maxSurge: 25%　 #アップデート中に最大に増やしていいいポッドの数
@@ -18,6 +17,7 @@ spec:
       labels:
         app: nginx
     spec:
+      serviceAccountName: test-sa
       containers:
         - name: nginx
           image: nginx:latest
