@@ -192,5 +192,27 @@ NAME                   READY   STATUS    RESTARTS   AGE
 red-5bd8fd8c7f-7rfmk   1/1     Running   0          17m
 red-5bd8fd8c7f-dvn6b   1/1     Running   0          17m
 
+# コマンドだけの時はitいらない
+controlplane ~ ✖ k exec ubuntu-sleeper  -- whoami
+root
+
+#security Context ユーザ指定。セキュリティコンテキストで検索すると飛べる
+piVersion: v1
+kind: Pod
+metadata:
+  name: ubuntu-sleeper
+  namespace: default
+spec:
+  securityContext:
+    runAsUser: 1010
+  containers:
+  - command:
+    - sleep
+    - "4800"
+    image: ubuntu
+    name: ubuntu-sleeper
+    securityContext:
+      runAsUser: 1002 #コンテナの中で指定されていたらこっちで実行される
+
 
 
