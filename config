@@ -54,13 +54,143 @@ controlplane ~ ➜  ls /etc/kubernetes/pki/etcd/
 #kube-api サーバーがまた停止しました。
 それをチェックしてください。 kube-api サーバーのログを調べて根本原因を特定し、問題を修正します。
 
+#プロセスIDを確認する
+controlplane ~ ➜  crictl ps -a |grep kube-api
+1b781c1f403e9       1443a367b16d3       36 seconds ago      Exited              kube-apiserver            5                   8c1b61aa5cf6d       kube-apiserver-controlplane
+
+ログを確認する
+controlplane ~ ➜  crictl logs --tail=2 1b781c1f403e9
+W0501 05:19:01.065249       1 logging.go:59] [core] [Channel #1 SubChannel #3] grpc: addrConn.createTransport failed to connect to {Addr: "127.0.0.1:2379", ServerName: "127.0.0.1:2379", }. Err: connection error: desc = "transport: Error while dialing: dial tcp 127.0.0.1:2379: connect: connection refused"
+F0501 05:19:04.021291       1 instance.go:290] Error creating leases: error creating storage factory: context deadline exceeded
+コネクションリフーズドになっているので証明書のエラーと推測できる
+
+
+#kubeconfigの確認
+controlplane ~ ➜  kubectl config view 
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://controlplane:6443
+  name: kubernetes #get-clustersで表示されるやつ
+contexts:
+- context:
+    cluster: kubernetes
+    user: kubernetes-admin
+  name: kubernetes-admin@kubernetes #ユーザ@クラスタ　current-contextで表示されるやつ
+current-context: kubernetes-admin@kubernetes
+kind: Config
+preferences: {}
+users:
+- name: kubernetes-admin
+  user:
+    client-certificate-data: DATA+OMITTED
+    client-key-data: DATA+OMITTED
 
 
 
+#kubeconfig
+controlplane ~ ➜  cat my-kube-config 
+apiVersion: v1
+kind: Config
+
+clusters:
+- name: production
+  cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+
+- name: development
+  cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+
+- name: kubernetes-on-aws
+  cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+
+- name: test-cluster-1
+  cluster:
+    certificate-authority: /etc/kubernetes/pki/ca.crt
+    server: https://controlplane:6443
+
+contexts:
+- name: test-user@development
+  context:
+    cluster: development
+    user: test-user
+
+- name: aws-user@kubernetes-on-aws
+  context:
+    cluster: kubernetes-on-aws
+    user: aws-user
+
+- name: test-user@production
+  context:
+    cluster: production
+    user: test-user
+
+- name: research
+  context:
+    cluster: test-cluster-1
+    user: dev-user
+
+users:
+- name: test-user
+  user:
+    client-certificate: /etc/kubernetes/pki/users/test-user/test-user.crt
+    client-key: /etc/kubernetes/pki/users/test-user/test-user.key
+- name: dev-user
+  user:
+    client-certificate: /etc/kubernetes/pki/users/dev-user/developer-user.crt
+    client-key: /etc/kubernetes/pki/users/dev-user/dev-user.key
+- name: aws-user
+  user:
+    client-certificate: /etc/kubernetes/pki/users/aws-user/aws-user.crt
+    client-key: /etc/kubernetes/pki/users/aws-user/aws-user.key
+
+current-context: test-user@development
+preferences: {}
 
 
+kubeconfigを指定してやる場合。
+上のコンフィグを見るとわかるとおりresearchはユーザとクラスタ名をエイリアスしたかたちになっている
+k config --kubeconfig=/root/my-kube-config use-context research
+Switched to context "research".
 
 
+#デフォルトのくべコンフィグを変更する
+ホームディレクトリの.kube配下におく
+controlplane ~ ➜  cp my-kube-config ~/.kube/config
+
+controlplane ~ ➜  k config get-clusters 
+NAME
+production
+test-cluster-1
+development
+kubernetes-on-aws
+
+
+#rbac apiサーバに書いてある
+controlplane ~ ➜  k describe -n kube-system pod kube-apiserver-controlplane |grep auth
+      --authorization-mode=Node,RBAC
+      --enable-bootstrap-token-auth=true
+
+#ユーザ（kubeconfigに記載があるやつ）に許可を出す
+controlplane ~ ➜  k get po --as dev-user
+Error from server (Forbidden): pods is forbidden: User "dev-user" cannot list resource "pods" in API group "" in the namespace "default"
+
+controlplane ~ ✖ k create role developer --namespace=default --verb=list,create,delete --resource=pods
+role.rbac.authorization.k8s.io/developer created
+
+controlplane ~ ➜  kubectl create rolebinding dev-user-binding --namespace=default --role=developer --user=dev-user 
+rolebinding.rbac.authorization.k8s.io/dev-user-binding created
+
+controlplane ~ ➜  k get po --as dev-user
+NAME                   READY   STATUS    RESTARTS   AGE
+red-5bd8fd8c7f-7rfmk   1/1     Running   0          17m
+red-5bd8fd8c7f-dvn6b   1/1     Running   0          17m
 
 
 
