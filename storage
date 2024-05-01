@@ -1,5 +1,31 @@
 #アプリのログ見た
 kubectl exec webapp -- cat /log/app.log
 
+#pv hostpath で検索できた
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-log
+spec:
+  capacity:
+    storage: 100Mi
+  accessModes:
+    - ReadWriteMany
+  hostPath:
+    path: "/pv/log"
+  persistentVolumeReclaimPolicy: Retain #中身は削除されて再び使用される。ポッドが死んだとき
 
+アクセスモードが違うとバインディングされない
+バインティングすると100Mi使えるようになっている
+controlplane ~ ✖ cat c.yaml 
+apiVersion: v1
+kind: PersistentVolumeClaim　#podが死んだら消える
+metadata:
+  name: claim-log-1
+spec:
+  resources:
+    requests:
+      storage: 50Mi
+  accessModes:
+    - ReadWriteMany
 
