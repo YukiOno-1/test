@@ -1,0 +1,55 @@
+# バージョン
+k describe po -n kube-system etcd-controlplane  |grep image -i
+    Image:         registry.k8s.io/etcd:3.5.10-0
+    Image ID:      registry.k8s.io/etcd@sha256:22f892d7672adc0b9c86df67792afdb8b2dc08880f49f669eaaa59c47d7908c2
+  Normal  Pulled   14m   kubelet  Container image "registry.k8s.io/etcd:3.5.10-0" already present on machine
+
+
+#デスクライブすると色んな情報が乗っている
+    Command:
+      etcd
+      --advertise-client-urls=https://192.26.48.9:2379
+      --cert-file=/etc/kubernetes/pki/etcd/server.crt　#certificateファイル
+      --client-cert-auth=true
+      --data-dir=/var/lib/etcd #バックアップしたらここを変える
+      --experimental-initial-corrupt-check=true
+      --experimental-watch-progress-notify-interval=5s
+      --initial-advertise-peer-urls=https://192.26.48.9:2380
+      --initial-cluster=controlplane=https://192.26.48.9:2380
+      --key-file=/etc/kubernetes/pki/etcd/server.key　#鍵ファイル
+      --listen-client-urls=https://127.0.0.1:2379,https://192.26.48.9:2379　#アクセス情報
+      --listen-metrics-urls=http://127.0.0.1:2381
+      --listen-peer-urls=https://192.26.48.9:2380
+      --name=controlplane
+      --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+      --peer-client-cert-auth=true
+      --peer-key-file=/etc/kubernetes/pki/etcd/peer.key
+      --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+      --snapshot-count=10000
+      --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    State:          Running
+      Started:      Tue, 30 Apr 2024 13:07:41 +0000
+    Ready:          True
+    Restart Count:  0
+
+#スナップショット
+controlplane ~ ✖ ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/server.crt --key=/etc/kubernetes/pki/etcd/server.key \
+  snapshot save /opt/snapshot-pre-boot.db
+Snapshot saved at /opt/snapshot-pre-boot.db
+
+#/var/lib/etcd-from/backupにetcdを復元する。デフォルトでは/var/lib/etcdに作成されている
+ETCDCTL_API=3 etcdctl --data-dir /var/lib/etcd-from-backup snapshot restore /opt/snapshot-pre-boot.db
+
+# crictl psコマンドで、kubectlを使用せずに見れる しばらくの間はkubectl使えない
+# etcdがランニングにならなかったらデリートでリスタートさせていい.リスタートさせるとかなり時間かかる
+
+#etcdは外部の場合もある　。その場合はkube-systemにはなくて　crictl ps でみるととりまあることだけわかる
+ps -ef |grep etcdでプロセスの詳細情報が見れる
+
+#memberlistみる
+ETCDCTL_API=3 etcdctl --endpoints 10.2.0.9:2379 \
+  --cert=/etc/kubernetes/pki/etcd/server.crt \
+  --key=/etc/kubernetes/pki/etcd/server.key \
+  --cacert=/etc/kubernetes/pki/etcd/ca.crt \
+  member list
