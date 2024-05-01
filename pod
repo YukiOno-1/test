@@ -23,7 +23,7 @@ spec:
       value: pink
     volumeMounts:
     - name: vol
-      mountPath: /scrub
+      mountPath: /scrub #上で指定したパスの配下に作る
   - name: nginx
     image: nginx
   initContainers: #initコンテナをここで記述することができる
