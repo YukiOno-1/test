@@ -29,6 +29,38 @@ Certificate:
         Subject: CN = kube-apiserver
         Subject Public Key Info:
 
-
-Kubectl が突然コマンドに応答しなくなりました。
+# Kubectl が突然コマンドに応答しなくなりました。
 それをチェックしてください！最近、誰かが /etc/kubernetes/manifests/etcd.yaml ファイルを変更しました
+certファイルの場所がおかしい
+controlplane ~ ➜  less /etc/kubernetes/manifests/etcd.yaml |grep crt
+    - --cert-file=/etc/kubernetes/pki/etcd/server-certificate.crt
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+
+controlplane ~ ➜  less /etc/kubernetes/manifests/etcd.yaml |grep crt
+    - --cert-file=/etc/kubernetes/pki/etcd/server-certificate.crt
+    - --peer-cert-file=/etc/kubernetes/pki/etcd/peer.crt
+    - --peer-trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+    - --trusted-ca-file=/etc/kubernetes/pki/etcd/ca.crt
+
+実際のファイル名は以下server.crt
+controlplane ~ ➜  ls /etc/kubernetes/pki/etcd/
+ca.crt                  healthcheck-client.crt  peer.crt                server.crt
+ca.key                  healthcheck-client.key  peer.key                server.key
+
+controlplane ~ ➜  ls /etc/kubernetes/pki/etcd/
+
+#kube-api サーバーがまた停止しました。
+それをチェックしてください。 kube-api サーバーのログを調べて根本原因を特定し、問題を修正します。
+
+
+
+
+
+
+
+
+
+
+
