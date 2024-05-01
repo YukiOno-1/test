@@ -15,4 +15,20 @@ controlplane ~ ➜  cat /etc/kubernetes/manifests/kube-apiserver.yaml |grep -E '
     - --tls-private-key-file=/etc/kubernetes/pki/apiserver.key
 
 
-  
+#証明書の中身確認　発行者がkubernetesでkubeapiサーバの証明書だとわかる　
+controlplane ~ ➜  openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number: 5573499675589001532 (0x4d590c6cdf3cc13c)
+        Signature Algorithm: sha256WithRSAEncryption
+        Issuer: CN = kubernetes
+        Validity
+            Not Before: May  1 03:45:27 2024 GMT
+            Not After : May  1 03:50:27 2025 GMT
+        Subject: CN = kube-apiserver
+        Subject Public Key Info:
+
+
+Kubectl が突然コマンドに応答しなくなりました。
+それをチェックしてください！最近、誰かが /etc/kubernetes/manifests/etcd.yaml ファイルを変更しました
