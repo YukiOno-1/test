@@ -31,3 +31,13 @@ kubectl get pods -n kube-system
 #       RestartPolicy:       "Always",
 #       ... // 28 identical fields
 #   }
+
+ノードが死んだ
+ノードにsshしてcontainerd kubeletを見る
+kubeletが死んでたのでsystemctl でリスタート
+
+journalctl |less でkubelet
+下の方を見る
+var/lib/kubelet/config.yamlに設定がある
+/etc/kubernetes/kubelet.confにも設定がある
+
