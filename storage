@@ -1,0 +1,5 @@
+#アプリのログ見た
+kubectl exec webapp -- cat /log/app.log
+
+
+
