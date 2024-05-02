@@ -29,9 +29,19 @@ spec:
       - name: secret-name
 
 
+# k set imageでイメージをアップグレードして得た
 
 # image pull secret で検索すれば引っかかる
 root@controlplane ~ ➜  k create secret docker-registry private-reg-cred --docker-username=dock_user --docker-password=dock_password --docker-server=myprivateregistry.com:5000 --docker-email=dock_user@myprivateregistry.com
 secret/private-reg-cred created
 
+# 履歴
+k rollout history
+
+# 一個前に戻る
+k rollout undo 
+
+10-50-192-4.nsname.pod.cluster.localでもDNSできる
+
+k run --restart Always にすると以上終了時に再起動してくれる
 
