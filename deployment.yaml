@@ -45,3 +45,5 @@ k rollout undo
 
 k run --restart Always にすると以上終了時に再起動してくれる
 
+#今のコンフィグをみる
+k config view
